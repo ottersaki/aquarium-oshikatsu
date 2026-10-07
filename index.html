@@ -449,7 +449,7 @@ async function deleteRecord(index) {
 
     await window.updateRecordInFirestore(r.id, records[index]);
     modal.remove();
-    render();
+    await render();
   };
 }
 
