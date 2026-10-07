@@ -12,16 +12,32 @@
   body {
     margin: 0;
     font-family: system-ui, -apple-system, "Noto Sans JP", sans-serif;
-    background: linear-gradient(#dff7fa, #f8ffff);
+  background:
+  radial-gradient(circle at 15% 20%, rgba(255,255,255,.5) 0 4px, transparent 5px),
+  radial-gradient(circle at 80% 35%, rgba(255,255,255,.4) 0 3px, transparent 4px),
+  radial-gradient(circle at 35% 65%, rgba(255,255,255,.35) 0 5px, transparent 6px),
+  linear-gradient(180deg, #dff7fa 0%, #bcecf2 50%, #8bd8e3 100%);
     color: #24515a;
   }
   header {
     padding: 28px 20px 22px;
+    position: relative;
+    overflow: hidden;
     background: linear-gradient(135deg, #59c3d0, #8edfe5);
     color: white;
     border-radius: 0 0 28px 28px;
     box-shadow: 0 4px 14px #0001;
   }
+ header::after {
+    content: "";
+    position: absolute;
+    left: -10%;
+    bottom: -18px;
+    width: 120%;
+    height: 45px;
+    background: rgba(255,255,255,.45);
+    border-radius: 50% 50% 0 0;
+ }
   header h1 { margin: 0; font-size: 25px; }
   header p { margin: 7px 0 0; opacity: .9; }
   main { max-width: 620px; margin: auto; padding: 18px; }
