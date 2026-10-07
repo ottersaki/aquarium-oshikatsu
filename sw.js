@@ -1,4 +1,4 @@
-const CACHE_NAME = "aquarium-oshikatsu-v3";
+const CACHE_NAME = "aquarium-oshikatsu-v4";
 
 const FILES_TO_CACHE = [
   "./",
