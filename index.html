@@ -41,7 +41,20 @@
   header h1 { margin: 0; font-size: 25px; }
   header p { margin: 7px 0 0; opacity: .9; }
   main { max-width: 620px; margin: auto; padding: 18px; }
-  .otter { text-align:center; font-size: 62px; margin: 4px 0 12px; }
+.otter {
+  text-align: center;
+  margin: 10px 0 16px;
+}
+
+.otter img {
+  width: 100%;
+  max-width: 620px;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 24px;
+  display: block;
+  margin: auto;
+}
   .card {
     background: white;
     border-radius: 20px;
@@ -89,7 +102,9 @@
 </header>
 
 <main>
-  <div class="otter">🦦</div>
+  <div class="otter">
+  <img src="./otter-ocean-bg.jpg" alt="海で昆布に包まれて浮かぶラッコ">
+  </div>
 
   <section class="card">
     <h2>🏝️ 水族館を記録する</h2>
