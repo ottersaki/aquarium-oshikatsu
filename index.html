@@ -251,9 +251,14 @@ function drawCalendar(records = []) {
 
   const dayRecords = records.filter(r => r.date === dateString);
 
-  const animals = [...new Set(
-    dayRecords.map(r => (r.animalCategory || "🦦 ラッコ").split(" ")[0])
-  )].join("");
+  const animalList = [...new Set(
+  dayRecords.map(r => (r.animalCategory || "🦦 ラッコ").split(" ")[0])
+)];
+
+const animals =
+  animalList.length <= 2
+    ? animalList.join("")
+    : `${animalList.slice(0, 2).join("")} +${animalList.length - 2}`;
 
   html += `
     <div onclick="showRecordsForDate('${dateString}')" style="
