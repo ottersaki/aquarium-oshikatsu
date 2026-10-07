@@ -426,10 +426,9 @@ function clearRecords() {
     localStorage.removeItem(key);
     render();
   }
-}
 
-function render() {
-  const records = loadRecords();
+ async function render() {
+  const records = await window.loadRecordsFromFirestore();
   const area = document.getElementById("records");
 
   if (!records.length) {
@@ -456,7 +455,6 @@ function escapeHtml(text) {
   }[c]));
 }
 
-render();
 </script>
 <script>
 if ('serviceWorker' in navigator) {
@@ -526,10 +524,13 @@ loginBtn.addEventListener("click", async () => {
     userInfo.textContent = `${user.displayName || "ユーザー"}でログイン中`;
     loginBtn.style.display = "none";
     logoutBtn.style.display = "inline-block";
+   render();
   } else {
     userInfo.textContent = "";
     loginBtn.style.display = "inline-block";
     logoutBtn.style.display = "none";
+   document.getElementById("records").innerHTML =
+  '<div id="empty">ログインするとクラウドの思い出が見られるよ🦦☁️</div>';
   }
 });
 
