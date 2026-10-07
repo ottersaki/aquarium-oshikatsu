@@ -312,8 +312,8 @@ async function deleteRecord(index) {
   }
 }
 
-function editRecord(index) {
-  const records = loadRecords();
+ async function editRecord(index) {
+  const records = await window.loadRecordsFromFirestore();
   const r = records[index];
 
   const modal = document.createElement("div");
@@ -387,15 +387,46 @@ function editRecord(index) {
   modal.querySelector("#changePhoto").onclick = () => photoInput.click();
 
   photoInput.onchange = () => {
-    const file = photoInput.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      editedPhoto = reader.result;
-      preview.outerHTML = `<img id="editPreview" src="${editedPhoto}" style="width:100%;max-height:240px;object-fit:cover;border-radius:14px;margin:8px 0;">`;
+  const file = photoInput.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    const img = new Image();
+
+    img.onload = () => {
+      const maxSize = 1000;
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height && width > maxSize) {
+        height = Math.round(height * maxSize / width);
+        width = maxSize;
+      } else if (height > maxSize) {
+        width = Math.round(width * maxSize / height);
+        height = maxSize;
+      }
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+
+      editedPhoto = canvas.toDataURL("image/jpeg", 0.7);
+
+      const currentPreview = modal.querySelector("#editPreview");
+      currentPreview.outerHTML =
+        `<img id="editPreview" src="${editedPhoto}" style="width:100%;max-height:240px;object-fit:cover;border-radius:14px;margin:8px 0;">`;
     };
-    reader.readAsDataURL(file);
+
+    img.src = reader.result;
   };
+
+  reader.readAsDataURL(file);
+};
 
   modal.querySelector("#deletePhoto").onclick = () => {
     editedPhoto = "";
@@ -406,7 +437,8 @@ function editRecord(index) {
 
   modal.querySelector("#cancelEdit").onclick = () => modal.remove();
 
-  modal.querySelector("#saveEdit").onclick = () => {
+  modal.querySelector("#saveEdit").onclick = async () => {
+   
     const aquarium = modal.querySelector("#editAquarium").value.trim();
     if (!aquarium) {
       alert("水族館名を入れてね🦦");
@@ -424,7 +456,7 @@ function editRecord(index) {
       photo: editedPhoto
     };
 
-    saveRecords(records);
+    await window.updateRecordInFirestore(r.id, records[index]);
     modal.remove();
     render();
   };
@@ -517,6 +549,10 @@ const recordsCollection = collection(db, "records");
   await deleteDoc(doc(db, "records", id));
 };
 
+  window.updateRecordInFirestore = async (id, record) => {
+  await updateDoc(doc(db, "records", id), record);
+};
+  
 window.testLoadFirestore = async () => {
   const records = await window.loadRecordsFromFirestore();
   alert(`🦦 クラウドの海から ${records.length}件の思い出を見つけたよ！🌊✨`);
