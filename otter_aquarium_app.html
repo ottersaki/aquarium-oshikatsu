@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#58b8c7">
+<title>ラッコ水族館記録</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Noto Sans JP", sans-serif;
+    background: linear-gradient(#dff7fa, #f8ffff);
+    color: #24515a;
+  }
+  header {
+    padding: 28px 20px 22px;
+    background: linear-gradient(135deg, #59c3d0, #8edfe5);
+    color: white;
+    border-radius: 0 0 28px 28px;
+    box-shadow: 0 4px 14px #0001;
+  }
+  header h1 { margin: 0; font-size: 25px; }
+  header p { margin: 7px 0 0; opacity: .9; }
+  main { max-width: 620px; margin: auto; padding: 18px; }
+  .otter { text-align:center; font-size: 62px; margin: 4px 0 12px; }
+  .card {
+    background: white;
+    border-radius: 20px;
+    padding: 18px;
+    margin: 14px 0;
+    box-shadow: 0 4px 16px #27778218;
+  }
+  .card h2 { margin: 0 0 12px; font-size: 19px; }
+  input, textarea {
+    width: 100%;
+    border: 1px solid #c9e8eb;
+    border-radius: 12px;
+    padding: 12px;
+    margin: 7px 0;
+    font-size: 16px;
+  }
+  textarea { min-height: 80px; resize: vertical; }
+  button {
+    width: 100%;
+    border: 0;
+    border-radius: 14px;
+    padding: 13px;
+    margin-top: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    background: #4db6c3;
+    color: white;
+  }
+  button:active { transform: scale(.98); }
+  .secondary { background: #e5f7f8; color: #28717b; }
+  .record {
+    border-top: 1px solid #e4f1f2;
+    padding: 13px 0;
+  }
+  .record:first-child { border-top: 0; }
+  .name { font-weight: 800; font-size: 17px; }
+  .small { color: #6c9095; font-size: 13px; }
+  #empty { color:#7b9da1; text-align:center; padding:10px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🐠 水族館の推し活記録</h1>
+  <p>水族館で出会った推しを記録しよう 🌊</p>
+</header>
+
+<main>
+  <div class="otter">🦦</div>
+
+  <section class="card">
+    <h2>🏝️ 水族館を記録する</h2>
+    <input id="aquarium" placeholder="水族館名（例：鳥羽水族館）">
+    <input id="date" type="date">
+    <label style="display:block;margin-top:8px;font-weight:700;">🐾 動物</label>
+    <select id="animalCategory" style="width:100%;border:1px solid #c9e8eb;border-radius:12px;padding:12px;margin:7px 0;font-size:16px;">
+      <option value="🦦 ラッコ">🦦 ラッコ</option>
+      <option value="🐧 ペンギン">🐧 ペンギン</option>
+      <option value="🦭 アザラシ">🦭 アザラシ</option>
+      <option value="🦣 セイウチ">🦣 セイウチ</option>
+      <option value="🦫 ビーバー">🦫 ビーバー</option>
+      <option value="🐬 イルカ">🐬 イルカ</option>
+      <option value="🐋 クジラ">🐋 クジラ</option>
+      <option value="🦈 サメ">🦈 サメ</option>
+      <option value="🐢 カメ">🐢 カメ</option>
+      <option value="🐙 タコ">🐙 タコ</option>
+      <option value="🐠 魚">🐠 魚</option>
+      <option value="🐾 その他">🐾 その他</option>
+    </select>
+    <input id="otterName" placeholder="個体名（例：メイちゃん、44ちゃん）">
+    <label style="display:block;margin-top:8px;font-weight:700;">📸 写真</label>
+    <input id="photo" type="file" accept="image/*">
+    <input id="photoOtterName" placeholder="この写真のラッコ（例：メイちゃん）">
+    <textarea id="memo" placeholder="今日の思い出・感想"></textarea>
+    <button onclick="addRecord()">記録する 🦦</button>
+  </section>
+
+  <section class="card">
+    <h2>📖 思い出アルバム</h2>
+    <div id="records"></div>
+  </section>
+
+  <button class="secondary" onclick="clearRecords()">記録を全部消す</button>
+</main>
+
+<script>
+const key = "otterAquariumRecords";
+
+function loadRecords() {
+  return JSON.parse(localStorage.getItem(key) || "[]");
+}
+
+function saveRecords(records) {
+  localStorage.setItem(key, JSON.stringify(records));
+}
+
+function addRecord() {
+  const aquarium = document.getElementById("aquarium").value.trim();
+  const date = document.getElementById("date").value;
+  const animalCategory = document.getElementById("animalCategory").value;
+  const otterName = document.getElementById("otterName").value.trim();
+  const memo = document.getElementById("memo").value.trim();
+  const photoFile = document.getElementById("photo").files[0];
+  const photoOtterName = document.getElementById("photoOtterName").value.trim();
+
+  if (!aquarium) {
+    alert("水族館名を入れてね🦦");
+    return;
+  }
+
+  const save = (photo) => {
+    const records = loadRecords();
+    records.unshift({ aquarium, date, animalCategory, otterName, memo, photo, photoOtterName });
+    saveRecords(records);
+
+    document.getElementById("aquarium").value = "";
+    document.getElementById("date").value = "";
+    document.getElementById("animalCategory").value = "🦦 ラッコ";
+    document.getElementById("otterName").value = "";
+    document.getElementById("photo").value = "";
+    document.getElementById("photoOtterName").value = "";
+    document.getElementById("memo").value = "";
+
+    render();
+  };
+
+  if (photoFile) {
+    const reader = new FileReader();
+    reader.onload = () => save(reader.result);
+    reader.readAsDataURL(photoFile);
+  } else {
+    save("");
+  }
+}
+
+function deleteRecord(index) {
+  const records = loadRecords();
+  records.splice(index, 1);
+  saveRecords(records);
+  render();
+}
+
+function editRecord(index) {
+  const records = loadRecords();
+  const r = records[index];
+
+  const modal = document.createElement("div");
+  modal.style.cssText = `
+    position:fixed; inset:0; background:#0008; z-index:9999;
+    display:flex; align-items:center; justify-content:center; padding:18px;
+  `;
+
+  modal.innerHTML = `
+    <div style="background:white;width:100%;max-width:520px;max-height:90vh;overflow:auto;border-radius:22px;padding:20px;box-shadow:0 8px 30px #0004;">
+      <h2 style="margin:0 0 14px;">✏️ 記録を編集</h2>
+
+      <label style="font-weight:700;">🏝️ 水族館名</label>
+      <input id="editAquarium" value="${escapeAttr(r.aquarium)}">
+
+      <label style="font-weight:700;">📅 行った日</label>
+      <input id="editDate" type="date" value="${escapeAttr(r.date || "")}">
+
+      <label style="font-weight:700;">🐾 動物</label>
+      <select id="editAnimalCategory" style="width:100%;border:1px solid #c9e8eb;border-radius:12px;padding:12px;margin:7px 0;font-size:16px;">
+        <option value="🦦 ラッコ">🦦 ラッコ</option>
+        <option value="🐧 ペンギン">🐧 ペンギン</option>
+        <option value="🦭 アザラシ">🦭 アザラシ</option>
+        <option value="🦣 セイウチ">🦣 セイウチ</option>
+        <option value="🦫 ビーバー">🦫 ビーバー</option>
+        <option value="🐬 イルカ">🐬 イルカ</option>
+        <option value="🐋 クジラ">🐋 クジラ</option>
+        <option value="🦈 サメ">🦈 サメ</option>
+        <option value="🐢 カメ">🐢 カメ</option>
+        <option value="🐙 タコ">🐙 タコ</option>
+        <option value="🐠 魚">🐠 魚</option>
+        <option value="🐾 その他">🐾 その他</option>
+      </select>
+      <label style="font-weight:700;">🦦 個体名</label>
+      <input id="editOtter" value="${escapeAttr(r.otterName || "")}" placeholder="例：メイちゃん、44ちゃん">
+
+      <label style="font-weight:700;">📸 写真</label>
+      ${r.photo ? `<img id="editPreview" src="${r.photo}" style="width:100%;max-height:240px;object-fit:cover;border-radius:14px;margin:8px 0;">`
+                : `<div id="editPreview" style="padding:22px;text-align:center;background:#eef9fa;border-radius:14px;margin:8px 0;color:#6c9095;">写真なし</div>`}
+
+      <input id="editPhoto" type="file" accept="image/*" style="display:none;">
+
+      <div style="display:flex;gap:8px;margin:8px 0;">
+        <button id="changePhoto" type="button" style="margin:0;">📸 写真を変更</button>
+        <button id="deletePhoto" type="button" class="secondary" style="margin:0;">🗑️ 写真を削除</button>
+      </div>
+
+      <label style="font-weight:700;">🦦 この写真のラッコ</label>
+      <input id="editPhotoOtter" value="${escapeAttr(r.photoOtterName || "")}" placeholder="例：メイちゃん">
+
+      <label style="font-weight:700;">💭 思い出・感想</label>
+      <textarea id="editMemo">${escapeHtml(r.memo || "")}</textarea>
+
+      <div style="display:flex;gap:8px;">
+        <button id="saveEdit" type="button" style="margin:0;">保存する 💾</button>
+        <button id="cancelEdit" type="button" class="secondary" style="margin:0;">キャンセル</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  const categorySelect = modal.querySelector("#editAnimalCategory");
+  categorySelect.value = r.animalCategory || "🦦 ラッコ";
+
+  let editedPhoto = r.photo || "";
+
+  const photoInput = modal.querySelector("#editPhoto");
+  const preview = modal.querySelector("#editPreview");
+
+  modal.querySelector("#changePhoto").onclick = () => photoInput.click();
+
+  photoInput.onchange = () => {
+    const file = photoInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      editedPhoto = reader.result;
+      preview.outerHTML = `<img id="editPreview" src="${editedPhoto}" style="width:100%;max-height:240px;object-fit:cover;border-radius:14px;margin:8px 0;">`;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  modal.querySelector("#deletePhoto").onclick = () => {
+    editedPhoto = "";
+    const currentPreview = modal.querySelector("#editPreview");
+    currentPreview.outerHTML = `<div id="editPreview" style="padding:22px;text-align:center;background:#eef9fa;border-radius:14px;margin:8px 0;color:#6c9095;">写真なし</div>`;
+    photoInput.value = "";
+  };
+
+  modal.querySelector("#cancelEdit").onclick = () => modal.remove();
+
+  modal.querySelector("#saveEdit").onclick = () => {
+    const aquarium = modal.querySelector("#editAquarium").value.trim();
+    if (!aquarium) {
+      alert("水族館名を入れてね🦦");
+      return;
+    }
+
+    records[index] = {
+      ...r,
+      aquarium,
+      date: modal.querySelector("#editDate").value,
+      animalCategory: modal.querySelector("#editAnimalCategory").value,
+      otterName: modal.querySelector("#editOtter").value.trim(),
+      photoOtterName: modal.querySelector("#editPhotoOtter").value.trim(),
+      memo: modal.querySelector("#editMemo").value.trim(),
+      photo: editedPhoto
+    };
+
+    saveRecords(records);
+    modal.remove();
+    render();
+  };
+}
+
+function escapeAttr(text) {
+  return String(text).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function clearRecords() {
+  if (confirm("本当に全部消す？🦦")) {
+    localStorage.removeItem(key);
+    render();
+  }
+}
+
+function render() {
+  const records = loadRecords();
+  const area = document.getElementById("records");
+
+  if (!records.length) {
+    area.innerHTML = '<div id="empty">まだ記録がないよ。<br>最初のラッコ旅を記録しよう！🦦💕</div>';
+    return;
+  }
+
+  area.innerHTML = records.map((r, i) => `
+    <div class="record">
+      <div class="name">🏝️ ${escapeHtml(r.aquarium)}</div>
+      <div class="small">${r.date || "日付なし"} ・ ${escapeHtml(r.animalCategory || "🦦 ラッコ")} ${r.otterName ? "・ " + escapeHtml(r.otterName) : ""}</div>
+      ${r.photo ? `<img src="${r.photo}" alt="思い出の写真" style="width:100%;max-height:320px;object-fit:cover;border-radius:14px;margin-top:10px;">
+        ${r.photoOtterName ? `<div style="font-weight:700;margin-top:7px;">🦦 この写真：${escapeHtml(r.photoOtterName)}</div>` : ""}` : ""}
+      ${r.memo ? `<p>${escapeHtml(r.memo)}</p>` : ""}
+      <button class="secondary" onclick="editRecord(${i})">✏️ この記録を編集</button>
+      <button class="secondary" onclick="deleteRecord(${i})">この記録を削除</button>
+    </div>
+  `).join("");
+}
+
+function escapeHtml(text) {
+  return text.replace(/[&<>"']/g, c => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;"
+  }[c]));
+}
+
+render();
+</script>
+</body>
+</html>
