@@ -256,8 +256,9 @@ function drawCalendar(records = []) {
       min-height:52px;
       border-radius:10px;
       background:${dayRecords.length ? "#d8f4f6" : "#eef9fa"};
-      font-weight:${dayRecords.length ? "700" : "400"};
-    ">
+font-weight:${dayRecords.length ? "700" : "400"};
+cursor:pointer;
+">
       <div>${day}</div>
       ${dayRecords.length ? `<div style="font-size:16px;">${animals}</div>` : ""}
     </div>
