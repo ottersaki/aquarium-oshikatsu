@@ -425,9 +425,10 @@ function clearRecords() {
   if (confirm("本当に全部消す？🦦")) {
     localStorage.removeItem(key);
     render();
-  }
+   }
+}
 
- async function render() {
+async function render()
   const records = await window.loadRecordsFromFirestore();
   const area = document.getElementById("records");
 
