@@ -525,7 +525,10 @@ loginBtn.addEventListener("click", async () => {
     userInfo.textContent = `${user.displayName || "ユーザー"}でログイン中`;
     loginBtn.style.display = "none";
     logoutBtn.style.display = "inline-block";
-   render();
+  render().catch(error => {
+  alert("アルバム表示エラー：" + error.message);
+  console.error(error);
+});
   } else {
     userInfo.textContent = "";
     loginBtn.style.display = "inline-block";
