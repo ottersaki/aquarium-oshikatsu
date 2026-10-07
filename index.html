@@ -453,6 +453,7 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const recordsCollection = collection(db, "records");
   window.saveRecordToFirestore = async (record) => {
+  alert("☁️ Firestore保存関数まで来たよ！");
   await addDoc(recordsCollection, {
     ...record,
     createdAt: serverTimestamp()
