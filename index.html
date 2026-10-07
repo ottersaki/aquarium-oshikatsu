@@ -202,15 +202,6 @@
 </main>
 
 <script>
-const key = "otterAquariumRecords";
-
-function loadRecords() {
-  return JSON.parse(localStorage.getItem(key) || "[]");
-}
-
-function saveRecords(records) {
-  localStorage.setItem(key, JSON.stringify(records));
-}
 
 function addRecord() {
   const aquarium = document.getElementById("aquarium").value.trim();
@@ -226,22 +217,22 @@ function addRecord() {
     return;
   }
 
-  const save = (photo) => {
-    const records = loadRecords();
-    records.unshift({ aquarium, date, animalCategory, otterName, memo, photo, photoOtterName });
-    saveRecords(records);
-  window.saveRecordToFirestore({
-  aquarium,
-  date,
-  animalCategory,
-  otterName,
-  memo,
-  photo,
-  photoOtterName
-}).catch(error => {
+  const save = async (photo) => {
+  try {
+  await window.saveRecordToFirestore({
+    aquarium,
+    date,
+    animalCategory,
+    otterName,
+    memo,
+    photo,
+    photoOtterName
+  });
+} catch (error) {
   console.error("Firestore保存エラー:", error);
   alert("☁️ クラウド保存に失敗しました：" + error.message);
-});
+  return;
+  }
     document.getElementById("aquarium").value = "";
     document.getElementById("date").value = "";
     document.getElementById("animalCategory").value = "🦦 ラッコ";
@@ -250,7 +241,7 @@ function addRecord() {
     document.getElementById("photoOtterName").value = "";
     document.getElementById("memo").value = "";
 
-    render();
+    await render();
   };
 
   if (photoFile) {
@@ -466,11 +457,19 @@ function escapeAttr(text) {
   return String(text).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-function clearRecords() {
-  if (confirm("本当に全部消す？🦦")) {
-    localStorage.removeItem(key);
-    render();
-   }
+async function clearRecords() {
+  if (!confirm("本当にクラウドの記録を全部消す？🦦🗑️\nこの操作は元に戻せないよ！")) {
+    return;
+  }
+
+  try {
+    await window.deleteAllRecordsFromFirestore();
+    await render();
+    alert("🗑️ クラウドの記録を全部削除したよ！");
+  } catch (error) {
+    console.error("全削除エラー:", error);
+    alert("削除に失敗しました：" + error.message);
+  }
 }
 
 async function render() {
@@ -547,6 +546,13 @@ const recordsCollection = collection(db, "records");
   
   window.deleteRecordFromFirestore = async (id) => {
   await deleteDoc(doc(db, "records", id));
+};
+  window.deleteAllRecordsFromFirestore = async () => {
+  const snapshot = await getDocs(recordsCollection);
+
+  for (const recordDoc of snapshot.docs) {
+    await deleteDoc(doc(db, "records", recordDoc.id));
+  }
 };
 
   window.updateRecordInFirestore = async (id, record) => {
