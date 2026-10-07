@@ -490,6 +490,21 @@ const recordsCollection = collection(db, "records");
     createdAt: serverTimestamp()
   });
 };
+  window.loadRecordsFromFirestore = async () => {
+  const q = query(recordsCollection, orderBy("createdAt", "desc"));
+  const snapshot = await getDocs(q);
+
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }));
+};
+
+window.testLoadFirestore = async () => {
+  const records = await window.loadRecordsFromFirestore();
+  alert(`🦦 クラウドの海から ${records.length}件の思い出を見つけたよ！🌊✨`);
+};
+
 const provider = new GoogleAuthProvider();
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
