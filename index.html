@@ -292,11 +292,24 @@ function addRecord() {
   }
 }
 
-function deleteRecord(index) {
-  const records = loadRecords();
-  records.splice(index, 1);
-  saveRecords(records);
-  render();
+async function deleteRecord(index) {
+  const records = await window.loadRecordsFromFirestore();
+  const record = records[index];
+
+  if (!record) return;
+
+  if (!confirm("この記録をクラウドから削除する？🦦🗑️")) {
+    return;
+  }
+
+  try {
+    await window.deleteRecordFromFirestore(record.id);
+    await render();
+    alert("🗑️ クラウドから記録を削除したよ！");
+  } catch (error) {
+    console.error("削除エラー:", error);
+    alert("削除に失敗しました：" + error.message);
+  }
 }
 
 function editRecord(index) {
@@ -498,6 +511,10 @@ const recordsCollection = collection(db, "records");
     id: doc.id,
     ...doc.data()
   }));
+};
+  
+  window.deleteRecordFromFirestore = async (id) => {
+  await deleteDoc(doc(db, "records", id));
 };
 
 window.testLoadFirestore = async () => {
