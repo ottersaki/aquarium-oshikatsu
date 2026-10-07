@@ -447,7 +447,9 @@ const userInfo = document.getElementById("userInfo");
 
 loginBtn.addEventListener("click", async () => {
   try {
+   alert("① ログイン処理を開始します");
     await signInWithPopup(auth, provider);
+   alert("② Googleログイン成功！");
   } catch (error) {
     console.error("ログインエラー:", error);
     alert("ログイン失敗：" + error.code + "\n" + error.message);
