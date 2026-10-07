@@ -229,7 +229,18 @@ function addRecord() {
     const records = loadRecords();
     records.unshift({ aquarium, date, animalCategory, otterName, memo, photo, photoOtterName });
     saveRecords(records);
-
+  window.saveRecordToFirestore({
+  aquarium,
+  date,
+  animalCategory,
+  otterName,
+  memo,
+  photo,
+  photoOtterName
+}).catch(error => {
+  console.error("Firestore保存エラー:", error);
+  alert("☁️ クラウド保存に失敗しました：" + error.message);
+});
     document.getElementById("aquarium").value = "";
     document.getElementById("date").value = "";
     document.getElementById("animalCategory").value = "🦦 ラッコ";
@@ -440,6 +451,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+const recordsCollection = collection(db, "records");
+  window.saveRecordToFirestore = async (record) => {
+  await addDoc(recordsCollection, {
+    ...record,
+    createdAt: serverTimestamp()
+  });
+};
 const provider = new GoogleAuthProvider();
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
