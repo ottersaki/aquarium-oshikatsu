@@ -194,6 +194,19 @@
 
   <section class="card">
     <h2>📖 思い出アルバム</h2>
+   
+<div id="calendarArea">
+  <h3>📅 思い出カレンダー</h3>
+
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+    <button id="prevMonth" type="button">◀</button>
+    <div id="calendarTitle" style="font-weight:800;text-align:center;flex:1;"></div>
+    <button id="nextMonth" type="button">▶</button>
+  </div>
+
+  <div id="calendar"></div>
+</div>
+   
    <button onclick="testLoadFirestore()">☁️ クラウドの海をのぞいてみる 🦦</button>
     <div id="records"></div>
   </section>
@@ -202,7 +215,102 @@
 </main>
 
 <script>
+ 
+let calendarDate = new Date();
 
+function drawCalendar(records = []) {
+  const calendar = document.getElementById("calendar");
+  const title = document.getElementById("calendarTitle");
+
+  const year = calendarDate.getFullYear();
+  const month = calendarDate.getMonth();
+
+  title.textContent = `${year}年${month + 1}月`;
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const lastDate = new Date(year, month + 1, 0).getDate();
+
+  let html = `
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;">
+      <div>日</div><div>月</div><div>火</div><div>水</div>
+      <div>木</div><div>金</div><div>土</div>
+  `;
+
+  for (let i = 0; i < firstDay; i++) {
+    html += `<div></div>`;
+  }
+
+ for (let day = 1; day <= lastDate; day++) {
+  const dateString =
+    `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+
+  const dayRecords = records.filter(r => r.date === dateString);
+
+  const animals = [...new Set(
+    dayRecords.map(r => (r.animalCategory || "🦦 ラッコ").split(" ")[0])
+  )].join("");
+
+  html += `
+    <div onclick="showRecordsForDate('${dateString}')" style="
+      padding:8px 2px;
+      min-height:52px;
+      border-radius:10px;
+      background:${dayRecords.length ? "#d8f4f6" : "#eef9fa"};
+      font-weight:${dayRecords.length ? "700" : "400"};
+    ">
+      <div>${day}</div>
+      ${dayRecords.length ? `<div style="font-size:16px;">${animals}</div>` : ""}
+    </div>
+  `;
+ }
+
+  html += `</div>`;
+  calendar.innerHTML = html;
+}
+function showRecordsForDate(dateString) {
+  const recordsArea = document.getElementById("records");
+
+  const selectedRecords = window.currentRecords.filter(
+    r => r.date === dateString
+  );
+
+  if (!selectedRecords.length) {
+    recordsArea.innerHTML = `
+      <div id="empty">
+        ${dateString} の記録はまだないよ🦦
+      </div>
+    `;
+    return;
+  }
+   recordsArea.innerHTML = selectedRecords.map(r => `
+    <div class="record">
+      <div class="name">🏝️ ${escapeHtml(r.aquarium)}</div>
+
+      <div class="small">
+        ${r.date || "日付なし"} ・
+        ${escapeHtml(r.animalCategory || "🦦 ラッコ")}
+        ${r.otterName ? "・ " + escapeHtml(r.otterName) : ""}
+      </div>
+
+      ${r.photo ? `
+        <img
+          src="${r.photo}"
+          alt="思い出の写真"
+          style="width:100%;max-height:320px;object-fit:cover;border-radius:14px;margin-top:10px;"
+        >
+      ` : ""}
+
+      ${r.photoOtterName ? `
+        <div style="font-weight:700;margin-top:7px;">
+          🦦 この写真：${escapeHtml(r.photoOtterName)}
+        </div>
+      ` : ""}
+
+      ${r.memo ? `<p>${escapeHtml(r.memo)}</p>` : ""}
+    </div>
+  `).join("");
+}
+ 
 function addRecord() {
   const aquarium = document.getElementById("aquarium").value.trim();
   const date = document.getElementById("date").value;
@@ -473,8 +581,12 @@ async function clearRecords() {
 }
 
 async function render() {
-  const records = await window.loadRecordsFromFirestore();
-  const area = document.getElementById("records");
+ const records = await window.loadRecordsFromFirestore();
+
+ window.currentRecords = records;
+ drawCalendar(records);
+ 
+ const area = document.getElementById("records");
 
   if (!records.length) {
     area.innerHTML = '<div id="empty">まだ記録がないよ。<br>最初のラッコ旅を記録しよう！🦦💕</div>';
