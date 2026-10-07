@@ -253,11 +253,41 @@ function addRecord() {
   };
 
   if (photoFile) {
-    const reader = new FileReader();
-    reader.onload = () => save(reader.result);
-    reader.readAsDataURL(photoFile);
-  } else {
-    save("");
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    const img = new Image();
+
+    img.onload = () => {
+      const maxSize = 1000;
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height && width > maxSize) {
+        height = Math.round(height * maxSize / width);
+        width = maxSize;
+      } else if (height > maxSize) {
+        width = Math.round(width * maxSize / height);
+        height = maxSize;
+      }
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+
+      const compressedPhoto = canvas.toDataURL("image/jpeg", 0.7);
+      save(compressedPhoto);
+    };
+
+    img.src = reader.result;
+  };
+
+  reader.readAsDataURL(photoFile);
+} else {
+  save("");
   }
 }
 
@@ -452,9 +482,9 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const recordsCollection = collection(db, "records");
- alert("🔍 Firestoreを呼ぶ直前！");
+ alert("🐚 思い出を大切にしまう準備中…🦦💕");
   window.saveRecordToFirestore = async (record) => {
-  alert("☁️ Firestore保存関数まで来たよ！");
+ alert("🦦 思い出をクラウドの海へお届け中〜！☁️🌊");
   await addDoc(recordsCollection, {
     ...record,
     createdAt: serverTimestamp()
