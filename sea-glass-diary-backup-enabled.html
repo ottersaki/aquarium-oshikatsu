@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#58b8c7">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<title>水族館の推し活記録</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;background:radial-gradient(circle at 15% 20%,rgba(255,255,255,.5) 0 4px,transparent 5px),radial-gradient(circle at 80% 35%,rgba(255,255,255,.4) 0 3px,transparent 4px),radial-gradient(circle at 35% 65%,rgba(255,255,255,.35) 0 5px,transparent 6px),linear-gradient(180deg,#dff7fa 0%,#bcecf2 50%,#8bd8e3 100%);color:#24515a}
+header{padding:28px 20px 22px;position:relative;overflow:hidden;background:linear-gradient(135deg,#59c3d0,#8edfe5);color:white;border-radius:0 0 28px 28px;box-shadow:0 4px 14px #0001}
+header::after{content:"";position:absolute;left:-10%;bottom:-18px;width:120%;height:45px;background:rgba(255,255,255,.45);border-radius:50% 50% 0 0;pointer-events:none}
+header h1{margin:0;font-size:25px}header p{margin:7px 0 0;opacity:.9}
+main{max-width:620px;margin:auto;padding:18px}
+.otter{position:relative;width:100%;height:210px;margin:0 0 8px;overflow:hidden}
+.otter img{width:100%;height:100%;object-fit:cover;display:block}
+.otter::before{content:"";position:absolute;z-index:2;top:-1px;left:0;width:100%;height:32px;background:#bcecf2;clip-path:polygon(0 0,100% 0,100% 35%,90% 55%,80% 70%,70% 58%,60% 38%,50% 30%,40% 42%,30% 65%,20% 72%,10% 55%,0 38%)}
+.otter::after{content:"";position:absolute;z-index:2;bottom:-1px;left:0;width:100%;height:32px;background:#8bd8e3;clip-path:polygon(0 62%,10% 45%,20% 28%,30% 35%,40% 58%,50% 70%,60% 62%,70% 42%,80% 30%,90% 45%,100% 65%,100% 100%,0 100%)}
+.card{background:white;border-radius:20px;padding:18px;margin:14px 0;box-shadow:0 4px 16px #27778218}
+.card h2{margin:0 0 12px;font-size:19px}
+input,textarea,select{width:100%;border:1px solid #c9e8eb;border-radius:12px;padding:12px;margin:7px 0;font-size:16px}
+textarea{min-height:80px;resize:vertical}
+button{width:100%;border:0;border-radius:14px;padding:13px;margin-top:8px;font-size:16px;font-weight:700;background:#4db6c3;color:white;cursor:pointer}
+button:active{transform:scale(.98)}
+.secondary{background:#e5f7f8;color:#28717b}
+.record{border-top:1px solid #e4f1f2;padding:13px 0}
+.record:first-child{border-top:0}
+.name{font-weight:800;font-size:17px}
+.small{color:#6c9095;font-size:13px}
+#empty{color:#7b9da1;text-align:center;padding:10px}
+</style>
+</head>
+<body>
+<header>
+<h1>🐠 水族館の推し活記録</h1>
+<p>水族館で出会った推しを記録しよう 🌊</p>
+<div id="loginArea">
+<button id="loginBtn">Googleでログイン</button>
+<button id="logoutBtn" style="display:none">ログアウト</button>
+<p id="userInfo"></p>
+</div>
+</header>
+<main>
+<div class="otter"><img src="./otter-ocean-bg.jpg" alt="海で昆布に包まれて浮かぶラッコ"></div>
+<section class="card">
+<h2>🏝️ 水族館を記録する</h2>
+<input id="aquarium" placeholder="水族館名（例：鳥羽水族館）">
+<input id="date" type="date">
+<label style="display:block;margin-top:8px;font-weight:700">🐾 動物</label>
+<select id="animalCategory">
+<option value="🦦 ラッコ">🦦 ラッコ</option>
+<option value="🐧 ペンギン">🐧 ペンギン</option>
+<option value="🦭 アザラシ">🦭 アザラシ</option>
+<option value="🦣 セイウチ">🦣 セイウチ</option>
+<option value="🦫 ビーバー">🦫 ビーバー</option>
+<option value="🐬 イルカ">🐬 イルカ</option>
+<option value="🐋 クジラ">🐋 クジラ</option>
+<option value="🦈 サメ">🦈 サメ</option>
+<option value="🐢 カメ">🐢 カメ</option>
+<option value="🐙 タコ">🐙 タコ</option>
+<option value="🐠 魚">🐠 魚</option>
+<option value="🐾 その他">🐾 その他</option>
+</select>
+<input id="otterName" placeholder="個体名（例：メイちゃん、44ちゃん）">
+<label style="display:block;margin-top:8px;font-weight:700">📸 写真</label>
+<input id="photo" type="file" accept="image/*">
+<input id="photoOtterName" placeholder="この写真のラッコ（例：メイちゃん）">
+<textarea id="memo" placeholder="今日の思い出・感想"></textarea>
+<button onclick="addRecord()">記録する 🦦</button>
+</section>
+<section class="card">
+<h2>📖 思い出アルバム</h2>
+<div id="calendarArea">
+<h3>📅 思い出カレンダー</h3>
+<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+<button id="prevMonth" type="button">◀</button>
+<div id="calendarTitle" style="font-weight:800;text-align:center;flex:1"></div>
+<button id="nextMonth" type="button">▶</button>
+</div>
+<div id="calendar"></div>
+<button id="showAllRecords" type="button" class="secondary">📖 すべての思い出を見る</button>
+</div>
+<button onclick="testLoadFirestore()">☁️ クラウドの海をのぞいてみる 🦦</button>
+<button id="backupRecordsBtn" type="button" class="secondary" onclick="downloadRecordsBackup()" disabled>💾 思い出と写真をバックアップ（JSON）</button>
+<div id="records"></div>
+</section>
+<button class="secondary" onclick="clearRecords()">記録を全部消す</button>
+</main>
+<script>
+let calendarDate=new Date();
+let selectedDate=null;
+window.currentRecords=[];
+
+function escapeHtml(text){
+ return String(text??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+}
+function escapeAttr(text){return escapeHtml(text)}
+function drawCalendar(records=[]){
+ const calendar=document.getElementById("calendar");
+ const title=document.getElementById("calendarTitle");
+ const year=calendarDate.getFullYear(),month=calendarDate.getMonth();
+ title.textContent=`${year}年${month+1}月`;
+ const firstDay=new Date(year,month,1).getDay();
+ const lastDate=new Date(year,month+1,0).getDate();
+ let html='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center"><div>日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div>土</div>';
+ for(let i=0;i<firstDay;i++)html+='<div></div>';
+ for(let day=1;day<=lastDate;day++){
+  const dateString=`${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+  const dayRecords=records.filter(r=>r.date===dateString);
+  const animalList=[...new Set(dayRecords.map(r=>(r.animalCategory||"🦦 ラッコ").split(" ")[0]))];
+  const animals=animalList.length<=2?animalList.join(""):`${animalList.slice(0,2).join("")} +${animalList.length-2}`;
+  html+=`<div onclick="showRecordsForDate('${dateString}')" style="padding:8px 2px;min-height:52px;border-radius:10px;background:${dayRecords.length?"#d8f4f6":"#eef9fa"};font-weight:${dayRecords.length?"700":"400"};cursor:pointer"><div>${day}</div>${dayRecords.length?`<div style="font-size:16px">${animals}</div>`:""}</div>`;
+ }
+ calendar.innerHTML=html+"</div>";
+}
+document.getElementById("prevMonth").addEventListener("click",()=>{
+ calendarDate=new Date(calendarDate.getFullYear(),calendarDate.getMonth()-1,1);
+ drawCalendar(window.currentRecords);
+});
+document.getElementById("nextMonth").addEventListener("click",()=>{
+ calendarDate=new Date(calendarDate.getFullYear(),calendarDate.getMonth()+1,1);
+ drawCalendar(window.currentRecords);
+});
+document.getElementById("showAllRecords").addEventListener("click",()=>{selectedDate=null;render()});
+
+function recordHtml(r){
+ return `<div class="record">
+ <div class="name">🏝️ ${escapeHtml(r.aquarium)}</div>
+ <div class="small">${escapeHtml(r.date||"日付なし")} ・ ${escapeHtml(r.animalCategory||"🦦 ラッコ")}${r.otterName?" ・ "+escapeHtml(r.otterName):""}</div>
+ ${r.photo?`<img src="${escapeAttr(r.photo)}" alt="思い出の写真" style="width:100%;max-height:320px;object-fit:cover;border-radius:14px;margin-top:10px">`:""}
+ ${r.photo&&r.photoOtterName?`<div style="font-weight:700;margin-top:7px">🦦 この写真：${escapeHtml(r.photoOtterName)}</div>`:""}
+ ${r.memo?`<p>${escapeHtml(r.memo)}</p>`:""}
+ <button class="secondary" onclick="editRecordById('${r.id}')">✏️ この記録を編集</button>
+ <button class="secondary" onclick="deleteRecordById('${r.id}')">この記録を削除</button>
+ </div>`;
+}
+function showRecordsForDate(dateString){
+ selectedDate=dateString;
+ const selectedRecords=window.currentRecords.filter(r=>r.date===dateString);
+ document.getElementById("records").innerHTML=selectedRecords.length
+ ?selectedRecords.map(recordHtml).join("")
+ :`<div id="empty">${escapeHtml(dateString)} の記録はまだないよ🦦</div>`;
+}
+async function refreshRecords(){
+ const records=await window.loadRecordsFromFirestore();
+ window.currentRecords=records;
+ drawCalendar(records);
+ if(selectedDate)showRecordsForDate(selectedDate);
+ else document.getElementById("records").innerHTML=records.length?records.map(recordHtml).join(""):'<div id="empty">まだ記録がないよ。<br>最初のラッコ旅を記録しよう！🦦💕</div>';
+}
+async function render(){await refreshRecords()}
+function compressImage(file){
+ return new Promise((resolve,reject)=>{
+  const reader=new FileReader();
+  reader.onerror=()=>reject(new Error("写真を読み込めませんでした"));
+  reader.onload=()=>{
+   const img=new Image();
+   img.onerror=()=>reject(new Error("画像を開けませんでした"));
+   img.onload=()=>{
+    let width=img.width,height=img.height,maxSize=1000;
+    if(width>height&&width>maxSize){height=Math.round(height*maxSize/width);width=maxSize}
+    else if(height>maxSize){width=Math.round(width*maxSize/height);height=maxSize}
+    const canvas=document.createElement("canvas");
+    canvas.width=width;canvas.height=height;
+    canvas.getContext("2d").drawImage(img,0,0,width,height);
+    resolve(canvas.toDataURL("image/jpeg",0.7));
+   };
+   img.src=reader.result;
+  };
+  reader.readAsDataURL(file);
+ });
+}
+async function addRecord(){
+ const aquarium=document.getElementById("aquarium").value.trim();
+ if(!aquarium){alert("水族館名を入れてね🦦");return}
+ try{
+  const photoFile=document.getElementById("photo").files[0];
+  const photo=photoFile?await compressImage(photoFile):"";
+  await window.saveRecordToFirestore({
+   aquarium,
+   date:document.getElementById("date").value,
+   animalCategory:document.getElementById("animalCategory").value,
+   otterName:document.getElementById("otterName").value.trim(),
+   memo:document.getElementById("memo").value.trim(),
+   photo,photoOtterName:document.getElementById("photoOtterName").value.trim()
+  });
+  for(const id of ["aquarium","date","otterName","photo","photoOtterName","memo"])document.getElementById(id).value="";
+  document.getElementById("animalCategory").value="🦦 ラッコ";
+  selectedDate=null;
+  await refreshRecords();
+ }catch(error){console.error(error);alert("☁️ クラウド保存に失敗しました："+error.message)}
+}
+async function deleteRecordById(id){
+ if(!confirm("この記録をクラウドから削除する？🦦🗑️"))return;
+ try{await window.deleteRecordFromFirestore(id);await refreshRecords();alert("🗑️ クラウドから記録を削除したよ！")}
+ catch(error){console.error(error);alert("削除に失敗しました："+error.message)}
+}
+async function editRecordById(id){
+ try{
+  const records=await window.loadRecordsFromFirestore();
+  const r=records.find(item=>item.id===id);
+  if(!r){alert("記録が見つからなかったよ🦦");return}
+  const modal=document.createElement("div");
+  modal.style.cssText="position:fixed;inset:0;background:#0008;z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px";
+  modal.innerHTML=`
+  <div style="background:white;width:100%;max-width:520px;max-height:90vh;overflow:auto;border-radius:22px;padding:20px;box-shadow:0 8px 30px #0004">
+   <h2 style="margin:0 0 14px">✏️ 記録を編集</h2>
+   <label style="font-weight:700">🏝️ 水族館名</label>
+   <input id="editAquarium" value="${escapeAttr(r.aquarium)}">
+   <label style="font-weight:700">📅 行った日</label>
+   <input id="editDate" type="date" value="${escapeAttr(r.date||"")}">
+   <label style="font-weight:700">🐾 動物</label>
+   <select id="editAnimalCategory">${document.getElementById("animalCategory").innerHTML}</select>
+   <label style="font-weight:700">🦦 個体名</label>
+   <input id="editOtter" value="${escapeAttr(r.otterName||"")}" placeholder="例：メイちゃん、44ちゃん">
+   <label style="font-weight:700">📸 写真</label>
+   <div id="editPreviewArea"></div>
+   <input id="editPhoto" type="file" accept="image/*" style="display:none">
+   <div style="display:flex;gap:8px;margin:8px 0">
+    <button id="changePhoto" type="button" style="margin:0">📸 写真を変更</button>
+    <button id="deletePhoto" type="button" class="secondary" style="margin:0">🗑️ 写真を削除</button>
+   </div>
+   <label style="font-weight:700">🦦 この写真のラッコ</label>
+   <input id="editPhotoOtter" value="${escapeAttr(r.photoOtterName||"")}" placeholder="例：メイちゃん">
+   <label style="font-weight:700">💭 思い出・感想</label>
+   <textarea id="editMemo">${escapeHtml(r.memo||"")}</textarea>
+   <div style="display:flex;gap:8px">
+    <button id="saveEdit" type="button" style="margin:0">保存する 💾</button>
+    <button id="cancelEdit" type="button" class="secondary" style="margin:0">キャンセル</button>
+   </div>
+  </div>`;
+  document.body.appendChild(modal);
+  modal.querySelector("#editAnimalCategory").value=r.animalCategory||"🦦 ラッコ";
+  let editedPhoto=r.photo||"";
+  const previewArea=modal.querySelector("#editPreviewArea");
+  function updatePreview(){
+   previewArea.replaceChildren();
+   if(editedPhoto){
+    const img=document.createElement("img");
+    img.src=editedPhoto;img.alt="写真プレビュー";
+    img.style.cssText="width:100%;max-height:240px;object-fit:cover;border-radius:14px;margin:8px 0";
+    previewArea.appendChild(img);
+   }else{
+    const empty=document.createElement("div");
+    empty.style.cssText="padding:22px;text-align:center;background:#eef9fa;border-radius:14px;margin:8px 0;color:#6c9095";
+    empty.textContent="写真なし";previewArea.appendChild(empty);
+   }
+  }
+  updatePreview();
+  const photoInput=modal.querySelector("#editPhoto");
+  modal.querySelector("#changePhoto").onclick=()=>photoInput.click();
+  photoInput.onchange=async()=>{
+   const file=photoInput.files[0];if(!file)return;
+   try{editedPhoto=await compressImage(file);updatePreview()}
+   catch(error){alert(error.message)}
+  };
+  modal.querySelector("#deletePhoto").onclick=()=>{editedPhoto="";photoInput.value="";updatePreview()};
+  modal.querySelector("#cancelEdit").onclick=()=>modal.remove();
+  modal.querySelector("#saveEdit").onclick=async()=>{
+   const aquarium=modal.querySelector("#editAquarium").value.trim();
+   if(!aquarium){alert("水族館名を入れてね🦦");return}
+   const saveButton=modal.querySelector("#saveEdit");
+   saveButton.disabled=true;
+   try{
+    await window.updateRecordInFirestore(r.id,{
+     aquarium,
+     date:modal.querySelector("#editDate").value,
+     animalCategory:modal.querySelector("#editAnimalCategory").value,
+     otterName:modal.querySelector("#editOtter").value.trim(),
+     photoOtterName:modal.querySelector("#editPhotoOtter").value.trim(),
+     memo:modal.querySelector("#editMemo").value.trim(),
+     photo:editedPhoto
+    });
+    modal.remove();
+    await refreshRecords();
+   }catch(error){console.error(error);alert("編集の保存に失敗しました："+error.message);saveButton.disabled=false}
+  };
+ }catch(error){console.error(error);alert("記録を開けませんでした："+error.message)}
+}
+async function downloadRecordsBackup(){
+ const btn=document.getElementById("backupRecordsBtn");
+ if(!window.backupUserSignedIn){alert("先にGoogleでログインしてね");return;}
+ btn.disabled=true;
+ try{
+  // Read-only: no Firestore writes or deletes are performed.
+  const records=await window.loadRecordsFromFirestore();
+  const backup={format:"sea-glass-diary-records-backup",version:1,exportedAt:new Date().toISOString(),projectId:"aquarium-oshikatsu",recordCount:records.length,records};
+  const blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  const stamp=new Date().toISOString().slice(0,10);
+  a.href=url;a.download=`sea-glass-diary-backup-${stamp}.json`;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+  alert(`思い出 ${records.length}件をJSONにまとめたよ。端末のダウンロード一覧にファイルがあるか確認してね！`);
+ }catch(error){console.error(error);alert("バックアップに失敗しました: "+error.message)}
+ finally{btn.disabled=!window.backupUserSignedIn}
+}
+async function clearRecords(){
+ if(!confirm("本当にクラウドの記録を全部消す？🦦🗑️\nこの操作は元に戻せないよ！"))return;
+ try{await window.deleteAllRecordsFromFirestore();selectedDate=null;await refreshRecords();alert("🗑️ クラウドの記録を全部削除したよ！")}
+ catch(error){console.error(error);alert("削除に失敗しました："+error.message)}
+}
+</script>
+<script>
+if("serviceWorker" in navigator){
+ window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));
+}
+</script>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+import {getFirestore,collection,addDoc,getDocs,deleteDoc,doc,updateDoc,query,orderBy,serverTimestamp} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+import {getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+const firebaseConfig={
+ apiKey:"AIzaSyBF2zPqr0Yrz9IMckI0paJdjSWkwLGWigA",
+ authDomain:"aquarium-oshikatsu.firebaseapp.com",
+ projectId:"aquarium-oshikatsu",
+ storageBucket:"aquarium-oshikatsu.firebasestorage.app",
+ messagingSenderId:"54021392245",
+ appId:"1:54021392245:web:2ce5f231627bf2e30c753c",
+ measurementId:"G-YMSL9R0C2C"
+};
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+const auth=getAuth(app);
+const recordsCollection=collection(db,"records");
+window.saveRecordToFirestore=async(record)=>{
+ alert("🦦 思い出をクラウドの海へお届け中〜！☁️🌊");
+ await addDoc(recordsCollection,{...record,createdAt:serverTimestamp()});
+};
+window.loadRecordsFromFirestore=async()=>{
+ const snapshot=await getDocs(query(recordsCollection,orderBy("createdAt","desc")));
+ return snapshot.docs.map(item=>({id:item.id,...item.data()}));
+};
+window.deleteRecordFromFirestore=async(id)=>deleteDoc(doc(db,"records",id));
+window.deleteAllRecordsFromFirestore=async()=>{
+ const snapshot=await getDocs(recordsCollection);
+ for(const item of snapshot.docs)await deleteDoc(doc(db,"records",item.id));
+};
+window.updateRecordInFirestore=async(id,record)=>updateDoc(doc(db,"records",id),record);
+window.testLoadFirestore=async()=>{
+ try{const records=await window.loadRecordsFromFirestore();alert(`🦦 クラウドの海から ${records.length}件の思い出を見つけたよ！🌊✨`)}
+ catch(error){alert("クラウドを読み込めませんでした："+error.message)}
+};
+const provider=new GoogleAuthProvider();
+const loginBtn=document.getElementById("loginBtn");
+const logoutBtn=document.getElementById("logoutBtn");
+const userInfo=document.getElementById("userInfo");
+loginBtn.addEventListener("click",async()=>{
+ try{
+  alert("🦦 Googleログインをはじめるよ〜！🔐");
+  await signInWithPopup(auth,provider);
+  alert("🎉 ログインできたよ！水族館へようこそ〜🐠🦦💕");
+ }catch(error){console.error(error);alert("ログイン失敗："+error.code+"\n"+error.message)}
+});
+onAuthStateChanged(auth,user=>{
+ window.backupUserSignedIn=!!user;
+ document.getElementById("backupRecordsBtn").disabled=!user;
+ if(user){
+  userInfo.textContent=`${user.displayName||"ユーザー"}でログイン中`;
+  loginBtn.style.display="none";logoutBtn.style.display="inline-block";
+  render().catch(error=>{alert("アルバム表示エラー："+error.message);console.error(error)});
+ }else{
+  userInfo.textContent="";loginBtn.style.display="inline-block";logoutBtn.style.display="none";
+  window.currentRecords=[];drawCalendar([]);
+  document.getElementById("records").innerHTML='<div id="empty">ログインするとクラウドの思い出が見られるよ🦦☁️</div>';
+ }
+});
+logoutBtn.addEventListener("click",async()=>signOut(auth));
+</script>
+</body>
+</html>
